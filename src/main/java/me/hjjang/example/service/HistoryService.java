@@ -18,9 +18,21 @@ public class HistoryService {
 
     private final HistoryRepository historyRepository;
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = ForceThrowException.class)
-    public void saveHistory(String saveUserName) {
-        log.info("HistoryService.saveHistory --- start");
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveHistoryPropagationRequired(String saveUserName) {
+        log.info("HistoryService.saveHistory_PropagationRequired --- start");
+        History history = new History();
+        history.setUserName(saveUserName);
+        log.info("currentTransactionName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+
+        historyRepository.save(history);
+        log.error("######### ForceThrow ############");
+        throw new ForceThrowException("히스토리익셉션발생!");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = ForceThrowException.class)
+    public void saveHistoryPropagationNew(String saveUserName) {
+        log.info("HistoryService.saveHistory_PropagationNew --- start");
         History history = new History();
         history.setUserName(saveUserName);
         log.info("currentTransactionName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
